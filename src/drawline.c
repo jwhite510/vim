@@ -676,10 +676,11 @@ win_line(
     }
 
 #ifdef FEAT_DIFF
-    filler_lines = diff_check(wp, lnum);
-    if (filler_lines < 0)
+    int linestatus = 0;
+    filler_lines = diff_check(wp, lnum, &linestatus);
+    if (filler_lines < 0 || linestatus < 0)
     {
-	if (filler_lines == -1)
+	if (filler_lines == -1 || linestatus == -1)
 	{
 	    if (diff_find_change(wp, lnum, &change_start, &change_end))
 		diff_hlf = HLF_ADD;	// added line
@@ -690,7 +691,8 @@ win_line(
 	}
 	else
 	    diff_hlf = HLF_ADD;		// added line
-	filler_lines = 0;
+	if (linestatus == 0)
+	    filler_lines = 0;
 	area_highlighting = TRUE;
     }
     if (lnum == wp->w_topline)
