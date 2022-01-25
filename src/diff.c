@@ -2174,7 +2174,7 @@ void try_possible_paths(const int *df_iterators, const int *paths,
           while (p[line_length] != '\n') {
             line_length++;
           }
-          current_lines[k] = ALLOC_MULT(char, line_length);
+          current_lines[k] = ALLOC_MULT(char, line_length + 1);
           for (int l = 0; l < line_length; l++) {
             current_lines[k][l] = p[l];
           }
@@ -2579,7 +2579,7 @@ diff_check(win_T *wp, linenr_T lnum, int *linestatus)
       int diffbuffers_count = 0;
       for (i = 0; i < DB_COUNT; i++) {
         if (curtab->tp_diffbuf[i] != NULL) {
-          memset(&diffbuffers[diffbuffers_count], 0, sizeof(diffbuffers[diffbuffers_count]));
+	  CLEAR_FIELD(diffbuffers[diffbuffers_count]);
           diff_write(curtab->tp_diffbuf[i], &diffbuffers[diffbuffers_count]);
           diff_begin[diffbuffers_count] = diffbuffers[diffbuffers_count].din_mmfile.ptr;
 
