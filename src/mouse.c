@@ -1858,7 +1858,7 @@ retnomove:
 	    for (first = TRUE; curwin->w_topline > 1; )
 	    {
 #ifdef FEAT_DIFF
-		if (curwin->w_topfill < diff_check(curwin, curwin->w_topline))
+		if (curwin->w_topfill < diff_check(curwin, curwin->w_topline, NULL))
 		    ++count;
 		else
 #endif
@@ -1870,7 +1870,7 @@ retnomove:
 		(void)hasFolding(curwin->w_topline, &curwin->w_topline, NULL);
 #endif
 #ifdef FEAT_DIFF
-		if (curwin->w_topfill < diff_check(curwin, curwin->w_topline))
+		if (curwin->w_topfill < diff_check(curwin, curwin->w_topline, NULL))
 		    ++curwin->w_topfill;
 		else
 #endif
