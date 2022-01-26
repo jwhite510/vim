@@ -31,4 +31,5 @@ linenr_T diff_lnum_win(linenr_T lnum, win_T *wp);
 long matching_characters(const char_u *s1, const char_u *s2);
 void f_diff_filler(typval_T *argvars, typval_T *rettv);
 void f_diff_hlID(typval_T *argvars, typval_T *rettv);
-/* vim: set ft=c : */
+long count_n_matched_chars(const char_u **stringps, const int *fromValues, const int n, int ***comparison_mem);
+long count_matched_chars(const char_u *s1, const char_u *s2);

@@ -1969,6 +1969,41 @@ int count_virtual_to_real(win_T *win, const linenr_T lnum,
   return real_offset;
 }
 
+/// count the matching characters between a variable number of strings "stringps"
+/// mark the strings that have already been compared to extract them later
+/// without re-running the character match counting.
+/// @param stringps
+/// @param fromValues
+/// @param n
+/// @param comparison_mem
+long count_n_matched_chars(const char_u **stringps, const int *fromValues,
+                           const int n, int ***comparison_mem)
+{
+  int matched_chars = 0, pointerindex = 0, matched = 0;
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      if ( stringps[i] != NULL && stringps[j] != NULL ) {
+        int i1 = fromValues[i];  // index of where to get the buffer
+        int j1 = fromValues[j];
+        if (comparison_mem[pointerindex][i1][j1] == -1) {
+          comparison_mem[pointerindex][i1][j1] =
+            count_matched_chars(stringps[i], stringps[j]);
+        }
+        matched++;
+        matched_chars += comparison_mem[pointerindex][i1][j1];
+      }
+      pointerindex++;
+    }
+  }
+
+  // prioritize a match of 3 (or more lines) equally to a match of 2 lines
+  if (matched >= 2) {
+    matched_chars *= 2;
+    matched_chars /= matched;
+  }
+
+  return matched_chars;
+}
 
 /// return the number of matching characters between two strings
 ///
@@ -2005,42 +2040,6 @@ long count_matched_chars(const char_u *s1, const char_u *s2)
   }
   // compare strings without changing the white space / case
   return matching_characters(s1, s2);
-}
-
-/// count the matching characters between a variable number of strings "stringps"
-/// mark the strings that have already been compared to extract them later
-/// without re-running the character match counting.
-/// @param stringps
-/// @param fromValues
-/// @param n
-/// @param comparison_mem
-long count_n_matched_chars(const char_u **stringps, const int *fromValues,
-                           const int n, int ***comparison_mem)
-{
-  int matched_chars = 0, pointerindex = 0, matched = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = i + 1; j < n; j++) {
-      if ( stringps[i] != NULL && stringps[j] != NULL ) {
-        int i1 = fromValues[i];  // index of where to get the buffer
-        int j1 = fromValues[j];
-        if (comparison_mem[pointerindex][i1][j1] == -1) {
-          comparison_mem[pointerindex][i1][j1] =
-            count_matched_chars(stringps[i], stringps[j]);
-        }
-        matched++;
-        matched_chars += comparison_mem[pointerindex][i1][j1];
-      }
-      pointerindex++;
-    }
-  }
-
-  // prioritize a match of 3 (or more lines) equally to a match of 2 lines
-  if (matched >= 2) {
-    matched_chars *= 2;
-    matched_chars /= matched;
-  }
-
-  return matched_chars;
 }
 
 /// update the path of a point in the diff linematch algorithm
