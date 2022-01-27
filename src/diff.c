@@ -2580,7 +2580,7 @@ diff_check(win_T *wp, linenr_T lnum, int *linestatus)
       int diffbuffers_count = 0;
       for (i = 0; i < DB_COUNT; i++) {
         if (curtab->tp_diffbuf[i] != NULL) {
-          memset(&diffbuffers[diffbuffers_count], 0, sizeof(diffbuffers[diffbuffers_count]));
+	  CLEAR_FIELD(diffbuffers[diffbuffers_count]);
           diff_write(curtab->tp_diffbuf[i], &diffbuffers[diffbuffers_count]);
           diff_begin[diffbuffers_count] = diffbuffers[diffbuffers_count].din_mmfile.ptr;
 
