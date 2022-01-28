@@ -1902,21 +1902,21 @@ diff_clear(tabpage_T *tp)
  */
 Bool diff_linematch(diff_T *dp)
 {
-  if (!(diff_flags & DIFF_LINEMATCH)) {
-    return 0;
-  }
-  // are there more than three diff buffers?
-  int tsize = 0;
-  for (int i = 0; i < DB_COUNT; i++) {
-    if ( curtab->tp_diffbuf[i] != NULL ) {
-      tsize += dp->df_count[i];
+    if (!(diff_flags & DIFF_LINEMATCH)) {
+	return 0;
     }
-  }
-  // avoid allocating a huge array because it will lag
-  if (tsize > linematch_lines) {
-    return 0;
-  }
-  return 1;
+    // are there more than three diff buffers?
+    int tsize = 0;
+    for (int i = 0; i < DB_COUNT; i++) {
+	if ( curtab->tp_diffbuf[i] != NULL ) {
+	    tsize += dp->df_count[i];
+	}
+    }
+    // avoid allocating a huge array because it will lag
+    if (tsize > linematch_lines) {
+	return 0;
+    }
+    return 1;
 }
 
 /*
@@ -1929,15 +1929,15 @@ Bool diff_linematch(diff_T *dp)
  */
 int count_virtual_lines(win_T *win, linenr_T start, linenr_T endline)
 {
-  int virtual_lines = 0;
-  for (int k = start; k <= endline; k++) {
-    int n = diff_check(win, k, NULL);
-    if (n > 0) {
-      virtual_lines += n;  // filler lines
+    int virtual_lines = 0;
+    for (int k = start; k <= endline; k++) {
+	int n = diff_check(win, k, NULL);
+	if (n > 0) {
+	    virtual_lines += n;  // filler lines
+	}
+	virtual_lines++;
     }
-    virtual_lines++;
-  }
-  return virtual_lines;
+    return virtual_lines;
 }
 /*  in "win" window, move from "lnum" down by the amount "virtual_lines"
  *  and return the number of real lines moved. if a non null pointer is
@@ -1950,25 +1950,25 @@ int count_virtual_lines(win_T *win, linenr_T start, linenr_T endline)
  *  @param line_new_virtualp
  */
 int count_virtual_to_real(win_T *win, const linenr_T lnum,
-                          const int virtual_lines, int *line_new_virtualp )
+	const int virtual_lines, int *line_new_virtualp )
 {
-  int real_offset = 0;
-  int virtual_offset = 0;
-  while (1) {
-    int n = diff_check(win, lnum+real_offset, NULL);
-    virtual_offset++;
-    if (n > 0) {
-      virtual_offset += n;  // filler lines
+    int real_offset = 0;
+    int virtual_offset = 0;
+    while (1) {
+	int n = diff_check(win, lnum+real_offset, NULL);
+	virtual_offset++;
+	if (n > 0) {
+	    virtual_offset += n;  // filler lines
+	}
+	if (virtual_offset > virtual_lines) {
+	    break;
+	}
+	real_offset++;
     }
-    if (virtual_offset > virtual_lines) {
-      break;
+    if ( line_new_virtualp != NULL ) {
+	(*line_new_virtualp) = virtual_offset;
     }
-    real_offset++;
-  }
-  if ( line_new_virtualp != NULL ) {
-    (*line_new_virtualp) = virtual_offset;
-  }
-  return real_offset;
+    return real_offset;
 }
 
 /*  count the matching characters between a variable number of strings "stringps"
@@ -1980,32 +1980,32 @@ int count_virtual_to_real(win_T *win, const linenr_T lnum,
  *  @param comparison_mem
  */
 long count_n_matched_chars(const char_u **stringps, const int *fromValues,
-                           const int n, int ***comparison_mem)
+	const int n, int ***comparison_mem)
 {
-  int matched_chars = 0, pointerindex = 0, matched = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = i + 1; j < n; j++) {
-      if ( stringps[i] != NULL && stringps[j] != NULL ) {
-        int i1 = fromValues[i];  // index of where to get the buffer
-        int j1 = fromValues[j];
-        if (comparison_mem[pointerindex][i1][j1] == -1) {
-          comparison_mem[pointerindex][i1][j1] =
-            count_matched_chars(stringps[i], stringps[j]);
-        }
-        matched++;
-        matched_chars += comparison_mem[pointerindex][i1][j1];
-      }
-      pointerindex++;
+    int matched_chars = 0, pointerindex = 0, matched = 0;
+    for (int i = 0; i < n; i++) {
+	for (int j = i + 1; j < n; j++) {
+	    if ( stringps[i] != NULL && stringps[j] != NULL ) {
+		int i1 = fromValues[i];  // index of where to get the buffer
+		int j1 = fromValues[j];
+		if (comparison_mem[pointerindex][i1][j1] == -1) {
+		    comparison_mem[pointerindex][i1][j1] =
+			count_matched_chars(stringps[i], stringps[j]);
+		}
+		matched++;
+		matched_chars += comparison_mem[pointerindex][i1][j1];
+	    }
+	    pointerindex++;
+	}
     }
-  }
 
-  // prioritize a match of 3 (or more lines) equally to a match of 2 lines
-  if (matched >= 2) {
-    matched_chars *= 2;
-    matched_chars /= matched;
-  }
+    // prioritize a match of 3 (or more lines) equally to a match of 2 lines
+    if (matched >= 2) {
+	matched_chars *= 2;
+	matched_chars /= matched;
+    }
 
-  return matched_chars;
+    return matched_chars;
 }
 
 /*  return the number of matching characters between two strings
@@ -2015,35 +2015,35 @@ long count_n_matched_chars(const char_u **stringps, const int *fromValues,
  */
 long count_matched_chars(const char_u *s1, const char_u *s2)
 {
-  long l1 = (long)STRLEN(s1), l2 = (long)STRLEN(s2);
-  if ( diff_flags & DIFF_IWHITE || diff_flags & DIFF_IWHITEALL
-      || diff_flags & DIFF_ICASE ) {
-    Bool iwhite = (diff_flags & DIFF_IWHITEALL || diff_flags & DIFF_IWHITE);
-    // the newly processed strings that will be compared
-    char_u *s1_proc = ALLOC_MULT(char_u, STRLEN(s1) + 1);
-    char_u *s2_proc = ALLOC_MULT(char_u, STRLEN(s2) + 1);
-    // delete the white space characters,
-    // and/or replace all upper case with lower
-    char_u *strsproc[2] = { s1_proc, s2_proc };
-    const char_u *strsorig[2] = { s1, s2 };
-    long slen[2] = { l1, l2 };
-    for (int k = 0; k < 2; k++) {
-      int d = 0, i = 0;
-      while (d+i < slen[k]) {
-        if ((iwhite)?(strsorig[k][i+d] != ' ' && strsorig[k][i+d] != '\t'):1) {
-          strsproc[k][i] = (diff_flags & DIFF_ICASE)?
-           (tolower(strsorig[k][i+d])):(strsorig[k][i+d]);
-          i++;
-        } else { d++; }
-      }
-      strsproc[k][i] = '\0';
+    long l1 = (long)STRLEN(s1), l2 = (long)STRLEN(s2);
+    if ( diff_flags & DIFF_IWHITE || diff_flags & DIFF_IWHITEALL
+	    || diff_flags & DIFF_ICASE ) {
+	Bool iwhite = (diff_flags & DIFF_IWHITEALL || diff_flags & DIFF_IWHITE);
+	// the newly processed strings that will be compared
+	char_u *s1_proc = ALLOC_MULT(char_u, STRLEN(s1) + 1);
+	char_u *s2_proc = ALLOC_MULT(char_u, STRLEN(s2) + 1);
+	// delete the white space characters,
+	// and/or replace all upper case with lower
+	char_u *strsproc[2] = { s1_proc, s2_proc };
+	const char_u *strsorig[2] = { s1, s2 };
+	long slen[2] = { l1, l2 };
+	for (int k = 0; k < 2; k++) {
+	    int d = 0, i = 0;
+	    while (d+i < slen[k]) {
+		if ((iwhite)?(strsorig[k][i+d] != ' ' && strsorig[k][i+d] != '\t'):1) {
+		    strsproc[k][i] = (diff_flags & DIFF_ICASE)?
+			(tolower(strsorig[k][i+d])):(strsorig[k][i+d]);
+		    i++;
+		} else { d++; }
+	    }
+	    strsproc[k][i] = '\0';
+	}
+	long matching = matching_characters(s1_proc, s2_proc);
+	vim_free(s1_proc), vim_free(s2_proc);
+	return matching;
     }
-    long matching = matching_characters(s1_proc, s2_proc);
-    vim_free(s1_proc), vim_free(s2_proc);
-    return matching;
-  }
-  // compare strings without changing the white space / case
-  return matching_characters(s1, s2);
+    // compare strings without changing the white space / case
+    return matching_characters(s1, s2);
 }
 
 /*  update the path of a point in the diff linematch algorithm
@@ -2054,16 +2054,16 @@ long count_matched_chars(const char_u *s1, const char_u *s2)
  *  @param choice
  */
 void update_path_flat(diffcomparisonpath_flat_T *diffcomparisonpath_flat,
-                      int score, int to, int from, const int choice)
+	int score, int to, int from, const int choice)
 {
-  for (int k = 0; k < diffcomparisonpath_flat[from].df_path_index; k++) {
-    diffcomparisonpath_flat[to].df_decision[k] = diffcomparisonpath_flat[from].df_decision[k];
-  }
-  diffcomparisonpath_flat[to].df_path_index = diffcomparisonpath_flat[from].df_path_index;
+    for (int k = 0; k < diffcomparisonpath_flat[from].df_path_index; k++) {
+	diffcomparisonpath_flat[to].df_decision[k] = diffcomparisonpath_flat[from].df_decision[k];
+    }
+    diffcomparisonpath_flat[to].df_path_index = diffcomparisonpath_flat[from].df_path_index;
 
-  diffcomparisonpath_flat[to].df_lev_score = score;
-  diffcomparisonpath_flat[to].df_decision[diffcomparisonpath_flat[to].df_path_index] = choice;
-  diffcomparisonpath_flat[to].df_path_index++;
+    diffcomparisonpath_flat[to].df_lev_score = score;
+    diffcomparisonpath_flat[to].df_decision[diffcomparisonpath_flat[to].df_path_index] = choice;
+    diffcomparisonpath_flat[to].df_path_index++;
 }
 
 /*  return matching characters between "s1" and "s2"
@@ -2083,29 +2083,29 @@ long matching_characters(const char_u *s1, const char_u *s2)
     matrix[1] = ALLOC_MULT(long, s2len + 1);
     Bool icur = 1;  // save space by storing only two rows for i axis
     for (long i = 0; i <= s1len; i++) {
-      icur = !icur;
-      for (long j = 0; j <= s2len; j++) {
-        if (i == 0) {
-          matrix[icur][j] = 0;
-        } else if (j == 0) {
-          matrix[icur][j] = 0;
-        } else {
-          matrix[icur][j] = 0;
-          // skip char in s1
-          if (matrix[!icur][j] > matrix[icur][j]) {
-            matrix[icur][j] = matrix[!icur][j];
-          }
-          // skip char in s2
-          if (matrix[icur][j-1] > matrix[icur][j]) {
-            matrix[icur][j] = matrix[icur][j-1];
-          }
-          // compare char in s1 and s2
-          if ( (s1[i-1] == s2[j-1])
-              && (matrix[!icur][j-1] + 1) > matrix[icur][j] ) {
-            matrix[icur][j] = matrix[!icur][j-1] + 1;
-          }
-        }
-      }
+	icur = !icur;
+	for (long j = 0; j <= s2len; j++) {
+	    if (i == 0) {
+		matrix[icur][j] = 0;
+	    } else if (j == 0) {
+		matrix[icur][j] = 0;
+	    } else {
+		matrix[icur][j] = 0;
+		// skip char in s1
+		if (matrix[!icur][j] > matrix[icur][j]) {
+		    matrix[icur][j] = matrix[!icur][j];
+		}
+		// skip char in s2
+		if (matrix[icur][j-1] > matrix[icur][j]) {
+		    matrix[icur][j] = matrix[icur][j-1];
+		}
+		// compare char in s1 and s2
+		if ( (s1[i-1] == s2[j-1])
+			&& (matrix[!icur][j-1] + 1) > matrix[icur][j] ) {
+		    matrix[icur][j] = matrix[!icur][j-1] + 1;
+		}
+	    }
+	}
     }
     long rvalue = matrix[icur][s2len];
     vim_free(matrix[0]), vim_free(matrix[1]);
@@ -2119,22 +2119,22 @@ long matching_characters(const char_u *s1, const char_u *s2)
  */
 int unwrap_indexes(const int *values, const int *diff_length, const int nDiffs)
 {
-  int num_unwrap_scalar = 1;
-  int path_index = 0;
-  for (int k = 0; k < nDiffs; k++) {
-    num_unwrap_scalar *= (diff_length[k] + 1);
-  }
-  for (int k = 0; k < nDiffs; k++) {
-    num_unwrap_scalar = num_unwrap_scalar / (diff_length[k] + 1);
-
-    if (k == 0) {
-      // space optimization
-      path_index += num_unwrap_scalar * (values[k] % 2);
-    } else {
-      path_index += num_unwrap_scalar * values[k];
+    int num_unwrap_scalar = 1;
+    int path_index = 0;
+    for (int k = 0; k < nDiffs; k++) {
+	num_unwrap_scalar *= (diff_length[k] + 1);
     }
-  }
-  return path_index;
+    for (int k = 0; k < nDiffs; k++) {
+	num_unwrap_scalar = num_unwrap_scalar / (diff_length[k] + 1);
+
+	if (k == 0) {
+	    // space optimization
+	    path_index += num_unwrap_scalar * (values[k] % 2);
+	} else {
+	    path_index += num_unwrap_scalar * values[k];
+	}
+    }
+    return path_index;
 }
 
 /*  try all the different ways to compare these lines and use the one that
@@ -2151,89 +2151,89 @@ int unwrap_indexes(const int *values, const int *diff_length, const int nDiffs)
  *  @param diff_block
  */
 void try_possible_paths(const int *df_iterators, const int *paths,
-                        const int nPaths, const int pathIndex, int *choice,
-                        diffcomparisonpath_flat_T *diffcomparisonpath_flat,
-                        int ***comparison_mem, const int *diff_length,
-                        const int nDiffs, const char **diff_block)
+	const int nPaths, const int pathIndex, int *choice,
+	diffcomparisonpath_flat_T *diffcomparisonpath_flat,
+	int ***comparison_mem, const int *diff_length,
+	const int nDiffs, const char **diff_block)
 {
-  if (pathIndex == nPaths) {
-    if ((*choice) > 0) {
-      int *fromValues = ALLOC_MULT(int, nDiffs);
-      int *toValues = ALLOC_MULT(int, nDiffs);
-      char **current_lines = ALLOC_MULT(char *, nDiffs);
-      const char_u **stringps = ALLOC_MULT(const char_u *, nDiffs);
-      for ( int k = 0; k < nDiffs; k++ ) {
-        fromValues[k] = df_iterators[k];
-        toValues[k] = df_iterators[k];
-        // get the index at all of the places
-        if ( (*choice) & (1 << k) ) {
-          fromValues[k]--;
-          const char *p = diff_block[k];
-          for (int j = 0; j < df_iterators[k] - 1; j++) {
-            // advance the pointer until it hits a newline
-            while (*p != '\n') {
-              p++;
-            }
-            p++;
-          }
-          // copy the line
-          int line_length = 0;
-          while (p[line_length] != '\n') {
-            line_length++;
-          }
-          current_lines[k] = ALLOC_MULT(char, line_length + 1);
-          for (int l = 0; l < line_length; l++) {
-            current_lines[k][l] = p[l];
-          }
-	  current_lines[k][line_length] = '\0';
-          stringps[k] = (char_u *)current_lines[k];  // cast to char_u
-        } else {
-          current_lines[k] = NULL;
-          stringps[k] = NULL;
-        }
-      }
-      int unwrapped_index_from = unwrap_indexes(fromValues, diff_length, nDiffs);
-      int unwrapped_index_to = unwrap_indexes(toValues, diff_length, nDiffs);
-      long matched_chars = count_n_matched_chars(
-          stringps, fromValues, nDiffs, comparison_mem);
-      int score = diffcomparisonpath_flat[unwrapped_index_from].df_lev_score +
-        matched_chars;
-      if (score > diffcomparisonpath_flat[unwrapped_index_to].df_lev_score) {
-        update_path_flat(
-            diffcomparisonpath_flat,
-            score,
-            unwrapped_index_to,
-            unwrapped_index_from,
-            *choice);
-      }
-      for (int i = 0; i < nDiffs; i++) {
-        vim_free(current_lines[i]);
-      }
-      vim_free(current_lines);
-      vim_free(fromValues);
-      vim_free(toValues);
-      vim_free(stringps);
+    if (pathIndex == nPaths) {
+	if ((*choice) > 0) {
+	    int *fromValues = ALLOC_MULT(int, nDiffs);
+	    int *toValues = ALLOC_MULT(int, nDiffs);
+	    char **current_lines = ALLOC_MULT(char *, nDiffs);
+	    const char_u **stringps = ALLOC_MULT(const char_u *, nDiffs);
+	    for ( int k = 0; k < nDiffs; k++ ) {
+		fromValues[k] = df_iterators[k];
+		toValues[k] = df_iterators[k];
+		// get the index at all of the places
+		if ( (*choice) & (1 << k) ) {
+		    fromValues[k]--;
+		    const char *p = diff_block[k];
+		    for (int j = 0; j < df_iterators[k] - 1; j++) {
+			// advance the pointer until it hits a newline
+			while (*p != '\n') {
+			    p++;
+			}
+			p++;
+		    }
+		    // copy the line
+		    int line_length = 0;
+		    while (p[line_length] != '\n') {
+			line_length++;
+		    }
+		    current_lines[k] = ALLOC_MULT(char, line_length + 1);
+		    for (int l = 0; l < line_length; l++) {
+			current_lines[k][l] = p[l];
+		    }
+		    current_lines[k][line_length] = '\0';
+		    stringps[k] = (char_u *)current_lines[k];  // cast to char_u
+		} else {
+		    current_lines[k] = NULL;
+		    stringps[k] = NULL;
+		}
+	    }
+	    int unwrapped_index_from = unwrap_indexes(fromValues, diff_length, nDiffs);
+	    int unwrapped_index_to = unwrap_indexes(toValues, diff_length, nDiffs);
+	    long matched_chars = count_n_matched_chars(
+		    stringps, fromValues, nDiffs, comparison_mem);
+	    int score = diffcomparisonpath_flat[unwrapped_index_from].df_lev_score +
+		matched_chars;
+	    if (score > diffcomparisonpath_flat[unwrapped_index_to].df_lev_score) {
+		update_path_flat(
+			diffcomparisonpath_flat,
+			score,
+			unwrapped_index_to,
+			unwrapped_index_from,
+			*choice);
+	    }
+	    for (int i = 0; i < nDiffs; i++) {
+		vim_free(current_lines[i]);
+	    }
+	    vim_free(current_lines);
+	    vim_free(fromValues);
+	    vim_free(toValues);
+	    vim_free(stringps);
 
-    } else {
-      // initialize the 0, 0, 0 ... choice
-      int i = 0;
-      while (df_iterators[i] == 0 && i < nDiffs) {
-        i++;
-        if (i == nDiffs) {
-          diffcomparisonpath_flat[0].df_lev_score = 0;
-          diffcomparisonpath_flat[0].df_path_index = 0;
-        }
-      }
+	} else {
+	    // initialize the 0, 0, 0 ... choice
+	    int i = 0;
+	    while (df_iterators[i] == 0 && i < nDiffs) {
+		i++;
+		if (i == nDiffs) {
+		    diffcomparisonpath_flat[0].df_lev_score = 0;
+		    diffcomparisonpath_flat[0].df_path_index = 0;
+		}
+	    }
+	}
+	return;
     }
-    return;
-  }
-  int bit_place = paths[pathIndex];
-  *(choice) |= (1 << bit_place);  // set it to 1
-  try_possible_paths(df_iterators, paths, nPaths, pathIndex + 1, choice,
-                     diffcomparisonpath_flat, comparison_mem, diff_length, nDiffs, diff_block);
-  *(choice) &= ~(1 << bit_place);  // set it to 0
-  try_possible_paths(df_iterators, paths, nPaths, pathIndex + 1, choice,
-                     diffcomparisonpath_flat, comparison_mem, diff_length, nDiffs, diff_block);
+    int bit_place = paths[pathIndex];
+    *(choice) |= (1 << bit_place);  // set it to 1
+    try_possible_paths(df_iterators, paths, nPaths, pathIndex + 1, choice,
+	    diffcomparisonpath_flat, comparison_mem, diff_length, nDiffs, diff_block);
+    *(choice) &= ~(1 << bit_place);  // set it to 0
+    try_possible_paths(df_iterators, paths, nPaths, pathIndex + 1, choice,
+	    diffcomparisonpath_flat, comparison_mem, diff_length, nDiffs, diff_block);
 }
 
 /*  allocate the memory for comparisons run with the diff linematch algorithm.
@@ -2244,28 +2244,28 @@ void try_possible_paths(const int *df_iterators, const int *paths,
  */
 int ***allocate_comparison_mem(const int *diff_length, const int nDiffs)
 {
-  int pointercount = 0;
-  for (int i = 0; i < nDiffs; i++) {
-    for (int j = i + 1; j < nDiffs; j++) {
-      pointercount++;
+    int pointercount = 0;
+    for (int i = 0; i < nDiffs; i++) {
+	for (int j = i + 1; j < nDiffs; j++) {
+	    pointercount++;
+	}
     }
-  }
-  int ***comparison_mem = ALLOC_MULT(int **, pointercount);
-  int cpointer = 0;
-  for (int i = 0; i < nDiffs; i++) {
-    for (int j = i + 1; j < nDiffs; j++) {
-      comparison_mem[cpointer] = ALLOC_MULT(int *, diff_length[i]);
-      for (int k = 0; k < diff_length[i]; k++) {
-        comparison_mem[cpointer][k] = ALLOC_MULT(int, diff_length[j]);
-        // initialize to -1
-        for (int l = 0; l < diff_length[j]; l++) {
-          comparison_mem[cpointer][k][l] = -1;
-        }
-      }
-      cpointer++;
+    int ***comparison_mem = ALLOC_MULT(int **, pointercount);
+    int cpointer = 0;
+    for (int i = 0; i < nDiffs; i++) {
+	for (int j = i + 1; j < nDiffs; j++) {
+	    comparison_mem[cpointer] = ALLOC_MULT(int *, diff_length[i]);
+	    for (int k = 0; k < diff_length[i]; k++) {
+		comparison_mem[cpointer][k] = ALLOC_MULT(int, diff_length[j]);
+		// initialize to -1
+		for (int l = 0; l < diff_length[j]; l++) {
+		    comparison_mem[cpointer][k][l] = -1;
+		}
+	    }
+	    cpointer++;
+	}
     }
-  }
-  return comparison_mem;
+    return comparison_mem;
 }
 
 /*  extract the results of the linematch algorithm and write them to
@@ -2280,79 +2280,79 @@ int ***allocate_comparison_mem(const int *diff_length, const int nDiffs)
  *  @param outmap
  */
 void diff_allign_extraction(const int best_path_index, const int *best_path_decisions, int nDiffs,
-                            df_linecompare_T **df_comparisonlines, int *df_arr_col_size,
-                            const int *outmap)
+	df_linecompare_T **df_comparisonlines, int *df_arr_col_size,
+	const int *outmap)
 {
-  int *pointers = ALLOC_MULT(int , nDiffs);
-  for (int i = 0; i < nDiffs; i++) {
-    pointers[i] = 0;
-  }
+    int *pointers = ALLOC_MULT(int , nDiffs);
+    for (int i = 0; i < nDiffs; i++) {
+	pointers[i] = 0;
+    }
 
-  // initialize compare lines
-  for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
-    (*df_comparisonlines)[
-        (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
-    (*df_comparisonlines)[
-        (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
-    for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
-      if (_bit_place != bit_place) {
-        (*df_comparisonlines)[
-            (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-        ].df_compare[ outmap[_bit_place] ] = -1;
-      }
+    // initialize compare lines
+    for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
+	(*df_comparisonlines)[
+	    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
+	(*df_comparisonlines)[
+	    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
+	for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
+	    if (_bit_place != bit_place) {
+		(*df_comparisonlines)[
+		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
+		].df_compare[ outmap[_bit_place] ] = -1;
+	    }
+	}
     }
-  }
-  for (int p = 0; p < best_path_index; p++) {
-    // perform the extraction
+    for (int p = 0; p < best_path_index; p++) {
+	// perform the extraction
 
-    // for each thing that gets compared
-    for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
-      if ( best_path_decisions[p] & (1 << bit_place) ) {
-        Bool newline = True;
-        for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
-          if (_bit_place != bit_place) {
-            if ( best_path_decisions[p] & (1 << _bit_place) ) {
-              newline = False;
-              (*df_comparisonlines)[
-                  (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-              ].df_compare[outmap[_bit_place]] = pointers[_bit_place];
-            }
-          }
-        }
-        if ( newline ) {
-          (*df_comparisonlines)[
-              (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-          ].df_newline = True;
-        }
+	// for each thing that gets compared
+	for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
+	    if ( best_path_decisions[p] & (1 << bit_place) ) {
+		Bool newline = True;
+		for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
+		    if (_bit_place != bit_place) {
+			if ( best_path_decisions[p] & (1 << _bit_place) ) {
+			    newline = False;
+			    (*df_comparisonlines)[
+				(*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
+			    ].df_compare[outmap[_bit_place]] = pointers[_bit_place];
+			}
+		    }
+		}
+		if ( newline ) {
+		    (*df_comparisonlines)[
+			(*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
+		    ].df_newline = True;
+		}
 
-      } else {
-        (*df_comparisonlines)[
-            (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-        ].df_filler++;
-      }
+	    } else {
+		(*df_comparisonlines)[
+		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
+		].df_filler++;
+	    }
+	}
+	for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
+	    if (best_path_decisions[p] & (1 << bit_place)) {
+		pointers[bit_place]++;
+	    }
+	}
+	for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
+	    if (best_path_decisions[p] & (1 << bit_place)) {
+		(*df_comparisonlines)[
+		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
+		(*df_comparisonlines)[
+		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
+		for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
+		    if (_bit_place != bit_place) {
+			(*df_comparisonlines)[
+			    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
+			].df_compare[ outmap[_bit_place] ] = -1;
+		    }
+		}
+	    }
+	}
     }
-    for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
-      if (best_path_decisions[p] & (1 << bit_place)) {
-        pointers[bit_place]++;
-      }
-    }
-    for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
-      if (best_path_decisions[p] & (1 << bit_place)) {
-        (*df_comparisonlines)[
-            (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
-        (*df_comparisonlines)[
-            (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
-        for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
-          if (_bit_place != bit_place) {
-            (*df_comparisonlines)[
-                (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-            ].df_compare[ outmap[_bit_place] ] = -1;
-          }
-        }
-      }
-    }
-  }
-  vim_free(pointers);
+    vim_free(pointers);
 }
 
 /*  free the memory for comparisons run with the diff linematch algorithm.
@@ -2364,18 +2364,18 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
  */
 void free_comparison_mem(int ***comparison_mem, const int *diff_length, const int nDiffs)
 {
-  // free comparison memory
-  int cpointer = 0;
-  for (int i = 0; i < nDiffs; i++) {
-    for (int j = i + 1; j < nDiffs; j++) {
-      for (int k = 0; k < diff_length[i]; k++) {
-        vim_free(comparison_mem[cpointer][k]);
-      }
-      vim_free(comparison_mem[cpointer]);
-      cpointer++;
+    // free comparison memory
+    int cpointer = 0;
+    for (int i = 0; i < nDiffs; i++) {
+	for (int j = i + 1; j < nDiffs; j++) {
+	    for (int k = 0; k < diff_length[i]; k++) {
+		vim_free(comparison_mem[cpointer][k]);
+	    }
+	    vim_free(comparison_mem[cpointer]);
+	    cpointer++;
+	}
     }
-  }
-  vim_free(comparison_mem);
+    vim_free(comparison_mem);
 }
 
 /*  populate the values of the linematch algorithm tensor, and find the best
@@ -2390,33 +2390,33 @@ void free_comparison_mem(int ***comparison_mem, const int *diff_length, const in
  *  @param diff_block
  */
 void populate_tensor(int *df_iterators, const int ch_dim,
-                     diffcomparisonpath_flat_T *diffcomparisonpath_flat, int ***comparison_mem,
-                     const int *diff_length, const int nDiffs, const char **diff_block)
+	diffcomparisonpath_flat_T *diffcomparisonpath_flat, int ***comparison_mem,
+	const int *diff_length, const int nDiffs, const char **diff_block)
 {
-  if (ch_dim == nDiffs) {
-    int nPaths = 0;
-    int *paths = ALLOC_MULT(int , nDiffs);
+    if (ch_dim == nDiffs) {
+	int nPaths = 0;
+	int *paths = ALLOC_MULT(int , nDiffs);
 
-    for (int j = 0; j < nDiffs; j++) {
-      if (df_iterators[j] > 0) {
-        paths[nPaths] = j;
-        nPaths++;
-      }
+	for (int j = 0; j < nDiffs; j++) {
+	    if (df_iterators[j] > 0) {
+		paths[nPaths] = j;
+		nPaths++;
+	    }
+	}
+	int choice = 0;
+	int unwrapper_index_to = unwrap_indexes(df_iterators, diff_length, nDiffs);
+	diffcomparisonpath_flat[unwrapper_index_to].df_lev_score = -1;
+	try_possible_paths(df_iterators, paths, nPaths, 0, &choice, diffcomparisonpath_flat,
+		comparison_mem, diff_length, nDiffs, diff_block);
+
+	vim_free(paths);
+	return;
     }
-    int choice = 0;
-    int unwrapper_index_to = unwrap_indexes(df_iterators, diff_length, nDiffs);
-    diffcomparisonpath_flat[unwrapper_index_to].df_lev_score = -1;
-    try_possible_paths(df_iterators, paths, nPaths, 0, &choice, diffcomparisonpath_flat,
-                       comparison_mem, diff_length, nDiffs, diff_block);
-
-    vim_free(paths);
-    return;
-  }
-  for (int i = 0; i <= diff_length[ch_dim]; i++) {
-    df_iterators[ch_dim] = i;
-    populate_tensor(df_iterators, ch_dim + 1, diffcomparisonpath_flat,
-                    comparison_mem, diff_length, nDiffs, diff_block);
-  }
+    for (int i = 0; i <= diff_length[ch_dim]; i++) {
+	df_iterators[ch_dim] = i;
+	populate_tensor(df_iterators, ch_dim + 1, diffcomparisonpath_flat,
+		comparison_mem, diff_length, nDiffs, diff_block);
+    }
 }
 
 /*  algorithm to find an optimal alignment of lines of a diff block with 2 or
@@ -2474,63 +2474,63 @@ void populate_tensor(int *df_iterators, const int ch_dim,
  *  @param outmap
  */
 void linematch_nbuffers(const char **diff_block, const int *diff_length,
-                        const int nDiffs, df_linecompare_T **df_comparisonlines,
-                        int *df_arr_col_size, const int *outmap)
+	const int nDiffs, df_linecompare_T **df_comparisonlines,
+	int *df_arr_col_size, const int *outmap)
 {
-  int memsize = 1, memsize_decisions = 0;
-  for (int i = 0; i < nDiffs; i++) {
-    memsize *= (i == 0 ? 2 : (diff_length[i] + 1));
-    memsize_decisions += diff_length[i];
-  }
-
-  // create the flattened path matrix
-  diffcomparisonpath_flat_T *diffcomparisonpath_flat = ALLOC_MULT(
-					diffcomparisonpath_flat_T, memsize);
-  // allocate memory here
-  for (int i = 0; i < memsize; i++) {
-    diffcomparisonpath_flat[i].df_decision = ALLOC_MULT(
-	    int, memsize_decisions);
-  }
-
-  // memory for avoiding repetitive calculations of score
-  int *df_iterators;
-  df_iterators = ALLOC_MULT(int, nDiffs);
-
-  int ***comparison_mem = allocate_comparison_mem(diff_length, nDiffs);
-
-  populate_tensor(df_iterators, 0, diffcomparisonpath_flat, comparison_mem,
-                  diff_length, nDiffs, diff_block);
-
-  int maxlines = 0;
-  for (int i = 0; i < nDiffs; i++) {
-    if (diff_length[i] > maxlines) {
-      maxlines = diff_length[i];
+    int memsize = 1, memsize_decisions = 0;
+    for (int i = 0; i < nDiffs; i++) {
+	memsize *= (i == 0 ? 2 : (diff_length[i] + 1));
+	memsize_decisions += diff_length[i];
     }
-  }
-  *df_arr_col_size = maxlines + 1;
-  *df_comparisonlines =
-    ALLOC_MULT(df_linecompare_T, DB_COUNT *(*df_arr_col_size));
 
-  // initialize lines
-  int *values_final = ALLOC_MULT(int, nDiffs);
-  for (int i = 0; i < nDiffs; i++) {
-    values_final[i] = diff_length[i];
-  }
-  const int u = unwrap_indexes(values_final, diff_length, nDiffs);
-  const int best_path_index = diffcomparisonpath_flat[u].df_path_index;
-  const int *best_path_decisions = diffcomparisonpath_flat[u].df_decision;
+    // create the flattened path matrix
+    diffcomparisonpath_flat_T *diffcomparisonpath_flat = ALLOC_MULT(
+	    diffcomparisonpath_flat_T, memsize);
+    // allocate memory here
+    for (int i = 0; i < memsize; i++) {
+	diffcomparisonpath_flat[i].df_decision = ALLOC_MULT(
+		int, memsize_decisions);
+    }
+
+    // memory for avoiding repetitive calculations of score
+    int *df_iterators;
+    df_iterators = ALLOC_MULT(int, nDiffs);
+
+    int ***comparison_mem = allocate_comparison_mem(diff_length, nDiffs);
+
+    populate_tensor(df_iterators, 0, diffcomparisonpath_flat, comparison_mem,
+	    diff_length, nDiffs, diff_block);
+
+    int maxlines = 0;
+    for (int i = 0; i < nDiffs; i++) {
+	if (diff_length[i] > maxlines) {
+	    maxlines = diff_length[i];
+	}
+    }
+    *df_arr_col_size = maxlines + 1;
+    *df_comparisonlines =
+	ALLOC_MULT(df_linecompare_T, DB_COUNT *(*df_arr_col_size));
+
+    // initialize lines
+    int *values_final = ALLOC_MULT(int, nDiffs);
+    for (int i = 0; i < nDiffs; i++) {
+	values_final[i] = diff_length[i];
+    }
+    const int u = unwrap_indexes(values_final, diff_length, nDiffs);
+    const int best_path_index = diffcomparisonpath_flat[u].df_path_index;
+    const int *best_path_decisions = diffcomparisonpath_flat[u].df_decision;
 
 
-  diff_allign_extraction(best_path_index, best_path_decisions, nDiffs,
-                         df_comparisonlines, df_arr_col_size, outmap);
-  free_comparison_mem(comparison_mem, diff_length, nDiffs);
+    diff_allign_extraction(best_path_index, best_path_decisions, nDiffs,
+	    df_comparisonlines, df_arr_col_size, outmap);
+    free_comparison_mem(comparison_mem, diff_length, nDiffs);
 
-  vim_free(values_final);
-  vim_free(df_iterators);
-  for (int i = 0; i < memsize; i++) {
-    vim_free(diffcomparisonpath_flat[i].df_decision);
-  }
-  vim_free(diffcomparisonpath_flat);
+    vim_free(values_final);
+    vim_free(df_iterators);
+    for (int i = 0; i < memsize; i++) {
+	vim_free(diffcomparisonpath_flat[i].df_decision);
+    }
+    vim_free(diffcomparisonpath_flat);
 }
 
 /*
@@ -2586,57 +2586,57 @@ diff_check(win_T *wp, linenr_T lnum, int *linestatus)
 	return 0;
 
     if (dp->df_redraw && diff_linematch(dp)) {
-      // define buffers for diff algorithm
-      diffin_T *diffbuffers = ALLOC_MULT(diffin_T, DB_COUNT);
-      const char **diff_begin = ALLOC_MULT(const char *, DB_COUNT);
-      int *diff_length = ALLOC_MULT(int, DB_COUNT);
-      int *outputmap = ALLOC_MULT(int, DB_COUNT);
-      int diffbuffers_count = 0;
-      for (i = 0; i < DB_COUNT; i++) {
-        if (curtab->tp_diffbuf[i] != NULL) {
-	  CLEAR_FIELD(diffbuffers[diffbuffers_count]);
-          diff_write(curtab->tp_diffbuf[i], &diffbuffers[diffbuffers_count]);
-          diff_begin[diffbuffers_count] = diffbuffers[diffbuffers_count].din_mmfile.ptr;
+	// define buffers for diff algorithm
+	diffin_T *diffbuffers = ALLOC_MULT(diffin_T, DB_COUNT);
+	const char **diff_begin = ALLOC_MULT(const char *, DB_COUNT);
+	int *diff_length = ALLOC_MULT(int, DB_COUNT);
+	int *outputmap = ALLOC_MULT(int, DB_COUNT);
+	int diffbuffers_count = 0;
+	for (i = 0; i < DB_COUNT; i++) {
+	    if (curtab->tp_diffbuf[i] != NULL) {
+		CLEAR_FIELD(diffbuffers[diffbuffers_count]);
+		diff_write(curtab->tp_diffbuf[i], &diffbuffers[diffbuffers_count]);
+		diff_begin[diffbuffers_count] = diffbuffers[diffbuffers_count].din_mmfile.ptr;
 
-          for (int j = 0; j < dp->df_lnum[i] - 1; j++) {
-            while (*diff_begin[diffbuffers_count] != '\n') {
-      	diff_begin[diffbuffers_count]++;
-            }
-            diff_begin[diffbuffers_count]++;
-          }
-          diff_length[diffbuffers_count] = dp->df_count[i];
+		for (int j = 0; j < dp->df_lnum[i] - 1; j++) {
+		    while (*diff_begin[diffbuffers_count] != '\n') {
+			diff_begin[diffbuffers_count]++;
+		    }
+		    diff_begin[diffbuffers_count]++;
+		}
+		diff_length[diffbuffers_count] = dp->df_count[i];
 
-          outputmap[diffbuffers_count] = i;
+		outputmap[diffbuffers_count] = i;
 
-          diffbuffers_count++;
-        }
-      }
+		diffbuffers_count++;
+	    }
+	}
 
-      linematch_nbuffers(diff_begin, diff_length, diffbuffers_count,
-      		   &dp->df_comparisonlines, &dp->df_arr_col_size, outputmap);
+	linematch_nbuffers(diff_begin, diff_length, diffbuffers_count,
+		&dp->df_comparisonlines, &dp->df_arr_col_size, outputmap);
 
-      for (i = 0; i < diffbuffers_count; i++) {
-        clear_diffin(&diffbuffers[i]);
-      }
-      vim_free(diffbuffers);
-      vim_free(diff_begin);
-      vim_free(diff_length);
-      vim_free(outputmap);
+	for (i = 0; i < diffbuffers_count; i++) {
+	    clear_diffin(&diffbuffers[i]);
+	}
+	vim_free(diffbuffers);
+	vim_free(diff_begin);
+	vim_free(diff_length);
+	vim_free(outputmap);
 
-      dp->df_redraw = False;
+	dp->df_redraw = False;
     }
     if (diff_linematch(dp)) {
-      long off = lnum - dp->df_lnum[idx];
-      if (off < dp->df_count[idx]) {
-        if (linestatus != NULL&&dp->df_comparisonlines[
-            dp->df_arr_col_size * idx + lnum-dp->df_lnum[idx]].df_newline) {
-          *linestatus=-2;   // line was added
-        } else if (linestatus != NULL) { *linestatus=-1; }  // line was changed
-      }
-      return (
-          diff_flags&DIFF_FILLER?
-          dp->df_comparisonlines[
-      	dp->df_arr_col_size * idx + lnum-dp->df_lnum[idx]].df_filler:0);
+	long off = lnum - dp->df_lnum[idx];
+	if (off < dp->df_count[idx]) {
+	    if (linestatus != NULL&&dp->df_comparisonlines[
+		    dp->df_arr_col_size * idx + lnum-dp->df_lnum[idx]].df_newline) {
+		*linestatus=-2;   // line was added
+	    } else if (linestatus != NULL) { *linestatus=-1; }  // line was changed
+	}
+	return (
+		diff_flags&DIFF_FILLER?
+		dp->df_comparisonlines[
+		dp->df_arr_col_size * idx + lnum-dp->df_lnum[idx]].df_filler:0);
     }
 
     if (lnum < dp->df_lnum[idx] + dp->df_count[idx])
@@ -2865,29 +2865,29 @@ diff_set_topline(win_T *fromwin, win_T *towin)
 	towin->w_topline = lnum + (dp->df_lnum[toidx] - dp->df_lnum[fromidx]);
 
 	if (diff_linematch(dp)&&(diff_flags&DIFF_FILLER)) {
-	  // count the number of virtual lines from top of diff block to top line
-	  int virtual_lines_above_from =
-	    count_virtual_lines(fromwin,
-				dp->df_lnum[fromidx],
-				fromwin->w_topline);
+	    // count the number of virtual lines from top of diff block to top line
+	    int virtual_lines_above_from =
+		count_virtual_lines(fromwin,
+			dp->df_lnum[fromidx],
+			fromwin->w_topline);
 
-	  // subtract existing topfill
-	  virtual_lines_above_from-=fromwin->w_topfill;
-	  if (virtual_lines_above_from) { virtual_lines_above_from--; }
+	    // subtract existing topfill
+	    virtual_lines_above_from-=fromwin->w_topfill;
+	    if (virtual_lines_above_from) { virtual_lines_above_from--; }
 
-	  // count same amount of virtual lines from top of this window
-	  int virtual_offset;
-	  int offset = count_virtual_to_real(
-	      curwin, dp->df_lnum[toidx],
-	      virtual_lines_above_from, &virtual_offset);
+	    // count same amount of virtual lines from top of this window
+	    int virtual_offset;
+	    int offset = count_virtual_to_real(
+		    curwin, dp->df_lnum[toidx],
+		    virtual_lines_above_from, &virtual_offset);
 
-	  if (fromwin->w_topline >= dp->df_lnum[fromidx]) {
-	    towin->w_topline = offset+dp->df_lnum[toidx];
-	    towin->w_topfill = virtual_offset-virtual_lines_above_from-1;
-	  } else {
-	    towin->w_topline = lnum + (dp->df_lnum[toidx] - dp->df_lnum[fromidx]);
-	  }
-	  return;
+	    if (fromwin->w_topline >= dp->df_lnum[fromidx]) {
+		towin->w_topline = offset+dp->df_lnum[toidx];
+		towin->w_topfill = virtual_offset-virtual_lines_above_from-1;
+	    } else {
+		towin->w_topline = lnum + (dp->df_lnum[toidx] - dp->df_lnum[fromidx]);
+	    }
+	    return;
 	}
 	if (lnum >= dp->df_lnum[fromidx])
 	{
@@ -3206,19 +3206,19 @@ diff_find_change(
 	    // Skip lines that are not in the other change (filler lines).
 	    linenr_T comparl;
 	    if (diff_linematch(dp)) {
-	      comparl = dp->df_comparisonlines[
-	          dp->df_arr_col_size * idx +  lnum - dp->df_lnum[idx]].df_compare[i];
-	      if (comparl != -1) { comparl+=dp->df_lnum[i]; }
-	      if (comparl == -1) { continue; }
+		comparl = dp->df_comparisonlines[
+		    dp->df_arr_col_size * idx +  lnum - dp->df_lnum[idx]].df_compare[i];
+		if (comparl != -1) { comparl+=dp->df_lnum[i]; }
+		if (comparl == -1) { continue; }
 	    } else {
-	      if (off >= dp->df_count[i]) {
-	        continue;
-	      }
+		if (off >= dp->df_count[i]) {
+		    continue;
+		}
 	    }
 	    added = FALSE;
 	    line_new = ml_get_buf(curtab->tp_diffbuf[i],
-				    (diff_linematch(dp))?
-				    comparl:dp->df_lnum[i] + off, FALSE);
+		    (diff_linematch(dp))?
+		    comparl:dp->df_lnum[i] + off, FALSE);
 
 	    // Search for start of difference
 	    si_org = si_new = 0;
@@ -3839,15 +3839,15 @@ diff_get_corresponding_line_int(
 	    baseline = lnum1 - dp->df_lnum[idx1];
 
 	    if ( diff_linematch(dp) && (diff_flags & DIFF_FILLER) ) {
-	      // count the number of virtual lines from top of diff block to cursor
-	      int virtual_lines_above_from = count_virtual_lines(
-	          win1, dp->df_lnum[idx1], lnum1);
+		// count the number of virtual lines from top of diff block to cursor
+		int virtual_lines_above_from = count_virtual_lines(
+			win1, dp->df_lnum[idx1], lnum1);
 
-	      // count the corresponding real lines in this buffer
-	      int offset = count_virtual_to_real(curwin, dp->df_lnum[idx2],
-	      				   virtual_lines_above_from, NULL);
+		// count the corresponding real lines in this buffer
+		int offset = count_virtual_to_real(curwin, dp->df_lnum[idx2],
+			virtual_lines_above_from, NULL);
 
-	      return dp->df_lnum[idx2]+offset-1;
+		return dp->df_lnum[idx2]+offset-1;
 	    }
 	    if (baseline > dp->df_count[idx2])
 		baseline = dp->df_count[idx2];
