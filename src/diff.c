@@ -1897,9 +1897,9 @@ diff_clear(tabpage_T *tp)
     tp->tp_first_diff = NULL;
 }
 
-///
-/// return true if the options are set to use diff linematch
-///
+/*
+ *  return true if the options are set to use diff linematch
+ */
 Bool diff_linematch(diff_T *dp)
 {
   if (!(diff_flags & DIFF_LINEMATCH)) {
@@ -1919,13 +1919,14 @@ Bool diff_linematch(diff_T *dp)
   return 1;
 }
 
-///
-/// Count the number of virtual (filler + non filler) lines between "start" and
-/// "endline" in "win"
-///
-/// @param win
-/// @param start
-/// @param endline
+/*
+ * Count the number of virtual (filler + non filler) lines between "start" and
+ * "endline" in "win"
+ *
+ * @param win
+ * @param start
+ * @param endline
+ */
 int count_virtual_lines(win_T *win, linenr_T start, linenr_T endline)
 {
   int virtual_lines = 0;
@@ -1938,15 +1939,16 @@ int count_virtual_lines(win_T *win, linenr_T start, linenr_T endline)
   }
   return virtual_lines;
 }
-/// in "win" window, move from "lnum" down by the amount "virtual_lines"
-/// and return the number of real lines moved. if a non null pointer is
-/// passed to "line_new_virtualp", it will be set to the number of virtual
-/// lines moved
-///
-/// @param win
-/// @param lnum
-/// @param virtual_lines
-/// @param line_new_virtualp
+/*  in "win" window, move from "lnum" down by the amount "virtual_lines"
+ *  and return the number of real lines moved. if a non null pointer is
+ *  passed to "line_new_virtualp", it will be set to the number of virtual
+ *  lines moved
+ *
+ *  @param win
+ *  @param lnum
+ *  @param virtual_lines
+ *  @param line_new_virtualp
+ */
 int count_virtual_to_real(win_T *win, const linenr_T lnum,
                           const int virtual_lines, int *line_new_virtualp )
 {
@@ -1969,13 +1971,14 @@ int count_virtual_to_real(win_T *win, const linenr_T lnum,
   return real_offset;
 }
 
-/// count the matching characters between a variable number of strings "stringps"
-/// mark the strings that have already been compared to extract them later
-/// without re-running the character match counting.
-/// @param stringps
-/// @param fromValues
-/// @param n
-/// @param comparison_mem
+/*  count the matching characters between a variable number of strings "stringps"
+ *  mark the strings that have already been compared to extract them later
+ *  without re-running the character match counting.
+ *  @param stringps
+ *  @param fromValues
+ *  @param n
+ *  @param comparison_mem
+ */
 long count_n_matched_chars(const char_u **stringps, const int *fromValues,
                            const int n, int ***comparison_mem)
 {
@@ -2005,10 +2008,11 @@ long count_n_matched_chars(const char_u **stringps, const int *fromValues,
   return matched_chars;
 }
 
-/// return the number of matching characters between two strings
-///
-/// @param s1
-/// @param s2
+/*  return the number of matching characters between two strings
+ *
+ *  @param s1
+ *  @param s2
+ */
 long count_matched_chars(const char_u *s1, const char_u *s2)
 {
   long l1 = (long)STRLEN(s1), l2 = (long)STRLEN(s2);
@@ -2042,12 +2046,13 @@ long count_matched_chars(const char_u *s1, const char_u *s2)
   return matching_characters(s1, s2);
 }
 
-/// update the path of a point in the diff linematch algorithm
-/// @param  diffcomparisonpath_flat
-/// @param score
-/// @param to
-/// @param from
-/// @param choice
+/*  update the path of a point in the diff linematch algorithm
+ *  @param  diffcomparisonpath_flat
+ *  @param score
+ *  @param to
+ *  @param from
+ *  @param choice
+ */
 void update_path_flat(diffcomparisonpath_flat_T *diffcomparisonpath_flat,
                       int score, int to, int from, const int choice)
 {
@@ -2061,14 +2066,15 @@ void update_path_flat(diffcomparisonpath_flat_T *diffcomparisonpath_flat,
   diffcomparisonpath_flat[to].df_path_index++;
 }
 
-/// return matching characters between "s1" and "s2"
-/// between string "s1" and "s2".
-/// Consider the case of two strings 'AAACCC' and 'CCCAAA', the
-/// return value from this function will be 3, either to match
-/// the 3 C's, or the 3 A's.
-///
-/// @param s1
-/// @param s2
+/*  return matching characters between "s1" and "s2"
+ *  between string "s1" and "s2".
+ *  Consider the case of two strings 'AAACCC' and 'CCCAAA', the
+ *  return value from this function will be 3, either to match
+ *  the 3 C's, or the 3 A's.
+ *
+ *  @param s1
+ *  @param s2
+ */
 long matching_characters(const char_u *s1, const char_u *s2)
 {
     long s1len = (long)STRLEN(s1), s2len = (long)STRLEN(s2);
@@ -2106,10 +2112,11 @@ long matching_characters(const char_u *s1, const char_u *s2)
     return rvalue;
 }
 
-/// unwrap indexes to access n dimmensional tensor
-/// @param values
-/// @param diff_length
-/// @param nDiffs
+/*  unwrap indexes to access n dimmensional tensor
+ *  @param values
+ *  @param diff_length
+ *  @param nDiffs
+ */
 int unwrap_indexes(const int *values, const int *diff_length, const int nDiffs)
 {
   int num_unwrap_scalar = 1;
@@ -2130,18 +2137,19 @@ int unwrap_indexes(const int *values, const int *diff_length, const int nDiffs)
   return path_index;
 }
 
-/// try all the different ways to compare these lines and use the one that
-/// results in the most matching characters
-/// @param df_iterators
-/// @param paths
-/// @param nPaths
-/// @param pathIndex
-/// @param choice
-/// @param diffcomparisonpath_flat
-/// @param comparison_mem
-/// @param diff_length
-/// @param nDiffs
-/// @param diff_block
+/*  try all the different ways to compare these lines and use the one that
+ *  results in the most matching characters
+ *  @param df_iterators
+ *  @param paths
+ *  @param nPaths
+ *  @param pathIndex
+ *  @param choice
+ *  @param diffcomparisonpath_flat
+ *  @param comparison_mem
+ *  @param diff_length
+ *  @param nDiffs
+ *  @param diff_block
+ */
 void try_possible_paths(const int *df_iterators, const int *paths,
                         const int nPaths, const int pathIndex, int *choice,
                         diffcomparisonpath_flat_T *diffcomparisonpath_flat,
@@ -2228,11 +2236,12 @@ void try_possible_paths(const int *df_iterators, const int *paths,
                      diffcomparisonpath_flat, comparison_mem, diff_length, nDiffs, diff_block);
 }
 
-/// allocate the memory for comparisons run with the diff linematch algorithm.
-/// this memory is used to prevent counting the matching characters on the same
-/// line twice
-/// @param diff_length
-/// @param nDiffs
+/*  allocate the memory for comparisons run with the diff linematch algorithm.
+ *  this memory is used to prevent counting the matching characters on the same
+ *  line twice
+ *  @param diff_length
+ *  @param nDiffs
+ */
 int ***allocate_comparison_mem(const int *diff_length, const int nDiffs)
 {
   int pointercount = 0;
@@ -2259,16 +2268,17 @@ int ***allocate_comparison_mem(const int *diff_length, const int nDiffs)
   return comparison_mem;
 }
 
-/// extract the results of the linematch algorithm and write them to
-/// "df_comparisonlines" using df_arr_col_size to determine which buffer the
-/// diffs are respective to. "outmap" is used to swap the indexes of the diff
-/// buffers to match the required format of the output.
-/// @param best_path_index
-/// @param best_path_decisions
-/// @param nDiffs
-/// @param df_comparisonlines
-/// @param df_arr_col_size
-/// @param outmap
+/*  extract the results of the linematch algorithm and write them to
+ *  "df_comparisonlines" using df_arr_col_size to determine which buffer the
+ *  diffs are respective to. "outmap" is used to swap the indexes of the diff
+ *  buffers to match the required format of the output.
+ *  @param best_path_index
+ *  @param best_path_decisions
+ *  @param nDiffs
+ *  @param df_comparisonlines
+ *  @param df_arr_col_size
+ *  @param outmap
+ */
 void diff_allign_extraction(const int best_path_index, const int *best_path_decisions, int nDiffs,
                             df_linecompare_T **df_comparisonlines, int *df_arr_col_size,
                             const int *outmap)
@@ -2345,12 +2355,13 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
   vim_free(pointers);
 }
 
-/// free the memory for comparisons run with the diff linematch algorithm.
-/// this memory is used to prevent counting the matching characters on the same
-/// line twice
-/// @param comparison_mem
-/// @param diff_length
-/// @param nDiffs
+/*  free the memory for comparisons run with the diff linematch algorithm.
+ *  this memory is used to prevent counting the matching characters on the same
+ *  line twice
+ *  @param comparison_mem
+ *  @param diff_length
+ *  @param nDiffs
+ */
 void free_comparison_mem(int ***comparison_mem, const int *diff_length, const int nDiffs)
 {
   // free comparison memory
@@ -2367,16 +2378,17 @@ void free_comparison_mem(int ***comparison_mem, const int *diff_length, const in
   vim_free(comparison_mem);
 }
 
-/// populate the values of the linematch algorithm tensor, and find the best
-/// decision for how to compare the relevant lines from each of the buffers at
-/// each point in the tensor
-/// @param df_iterators
-/// @param ch_dim
-/// @param diffcomparisonpath_flat
-/// @param comparison_mem
-/// @param diff_length
-/// @param nDiffs
-/// @param diff_block
+/*  populate the values of the linematch algorithm tensor, and find the best
+ *  decision for how to compare the relevant lines from each of the buffers at
+ *  each point in the tensor
+ *  @param df_iterators
+ *  @param ch_dim
+ *  @param diffcomparisonpath_flat
+ *  @param comparison_mem
+ *  @param diff_length
+ *  @param nDiffs
+ *  @param diff_block
+ */
 void populate_tensor(int *df_iterators, const int ch_dim,
                      diffcomparisonpath_flat_T *diffcomparisonpath_flat, int ***comparison_mem,
                      const int *diff_length, const int nDiffs, const char **diff_block)
@@ -2407,59 +2419,60 @@ void populate_tensor(int *df_iterators, const int ch_dim,
   }
 }
 
-/// algorithm to find an optimal alignment of lines of a diff block with 2 or
-/// more files. The algorithm is generalized to work for any number of files
-/// which corresponds to another dimmension added to the tensor used in the
-/// algorithm
-///
-/// for explanation, a summary of the algorithm in 3 dimmensions (3 files
-///     compared) follows
-///
-/// The 3d case (for 3 buffers) of the algorithm implemented when diffopt
-/// 'linematch' is enabled. The algorithm constructs a 3d tensor to
-/// compare a diff between 3 buffers. The dimmensions of the tensor are
-/// the length of the diff in each buffer plus 1 A path is constructed by
-/// moving from one edge of the cube/3d tensor to the opposite edge.
-/// Motions from one cell of the cube to the next represent decisions. In
-/// a 3d cube, there are a total of 7 decisions that can be made,
-/// represented by the enum df_path3_choice which is defined in
-/// buffer_defs.h a comparison of buffer 0 and 1 represents a motion
-/// toward the opposite edge of the cube with components along the 0 and
-/// 1 axes.  a comparison of buffer 0, 1, and 2 represents a motion
-/// toward the opposite edge of the cube with components along the 0, 1,
-/// and 2 axes. A skip of buffer 0 represents a motion along only the 0
-/// axis. For each action, a point value is awarded, and the path is
-/// saved for reference later, if it is found to have been the optimal
-/// path. The optimal path has the highest score.  The score is
-/// calculated as the summation of the total characters matching between
-/// all of the lines which were compared. The structure of the algorithm
-/// is that of a dynamic programming problem.  We can calculate a point
-/// i,j,k in the cube as a function of i-1, j-1, and k-1. To find the
-/// score and path at point i,j,k, we must determine which path we want
-/// to use, this is done by looking at the possibilities and choosing
-/// the one which results in the local highest score.  The total highest
-/// scored path is, then in the end represented by the cell in the
-/// opposite corner from the start location.  The entire algorithm
-/// consits of populating the 3d cube with the optimal paths from which
-/// it may have came.
-///
-/// Optimizations:
-/// As the function to calculate the cell of a tensor at point i,j,k is a
-/// function of the cells at i-1, j-1, k-1, the whole tensor doesn't need
-/// to be stored in memory at once. In the case of the 3d cube, only two
-/// slices (along k and j axis) are stored in memory. For the 2d matrix
-/// (for 2 files), only two rows are stored at a time. The next/previous
-/// slice (or row) is always calculated from the other, and they alternate
-/// at each iteration.
-/// In the 3d case, 3 arrays are populated to memorize the score (matched
-/// characters) of the 3 buffers, so a redundant calculation of the
-/// scores does not occur
-/// @param diff_block
-/// @param diff_length
-/// @param nDiffs
-/// @param df_comparisonlines
-/// @param df_arr_col_size
-/// @param outmap
+/*  algorithm to find an optimal alignment of lines of a diff block with 2 or
+ *  more files. The algorithm is generalized to work for any number of files
+ *  which corresponds to another dimmension added to the tensor used in the
+ *  algorithm
+ *
+ *  for explanation, a summary of the algorithm in 3 dimmensions (3 files
+ *      compared) follows
+ *
+ *  The 3d case (for 3 buffers) of the algorithm implemented when diffopt
+ *  'linematch' is enabled. The algorithm constructs a 3d tensor to
+ *  compare a diff between 3 buffers. The dimmensions of the tensor are
+ *  the length of the diff in each buffer plus 1 A path is constructed by
+ *  moving from one edge of the cube/3d tensor to the opposite edge.
+ *  Motions from one cell of the cube to the next represent decisions. In
+ *  a 3d cube, there are a total of 7 decisions that can be made,
+ *  represented by the enum df_path3_choice which is defined in
+ *  buffer_defs.h a comparison of buffer 0 and 1 represents a motion
+ *  toward the opposite edge of the cube with components along the 0 and
+ *  1 axes.  a comparison of buffer 0, 1, and 2 represents a motion
+ *  toward the opposite edge of the cube with components along the 0, 1,
+ *  and 2 axes. A skip of buffer 0 represents a motion along only the 0
+ *  axis. For each action, a point value is awarded, and the path is
+ *  saved for reference later, if it is found to have been the optimal
+ *  path. The optimal path has the highest score.  The score is
+ *  calculated as the summation of the total characters matching between
+ *  all of the lines which were compared. The structure of the algorithm
+ *  is that of a dynamic programming problem.  We can calculate a point
+ *  i,j,k in the cube as a function of i-1, j-1, and k-1. To find the
+ *  score and path at point i,j,k, we must determine which path we want
+ *  to use, this is done by looking at the possibilities and choosing
+ *  the one which results in the local highest score.  The total highest
+ *  scored path is, then in the end represented by the cell in the
+ *  opposite corner from the start location.  The entire algorithm
+ *  consits of populating the 3d cube with the optimal paths from which
+ *  it may have came.
+ *
+ *  Optimizations:
+ *  As the function to calculate the cell of a tensor at point i,j,k is a
+ *  function of the cells at i-1, j-1, k-1, the whole tensor doesn't need
+ *  to be stored in memory at once. In the case of the 3d cube, only two
+ *  slices (along k and j axis) are stored in memory. For the 2d matrix
+ *  (for 2 files), only two rows are stored at a time. The next/previous
+ *  slice (or row) is always calculated from the other, and they alternate
+ *  at each iteration.
+ *  In the 3d case, 3 arrays are populated to memorize the score (matched
+ *  characters) of the 3 buffers, so a redundant calculation of the
+ *  scores does not occur
+ *  @param diff_block
+ *  @param diff_length
+ *  @param nDiffs
+ *  @param df_comparisonlines
+ *  @param df_arr_col_size
+ *  @param outmap
+ */
 void linematch_nbuffers(const char **diff_block, const int *diff_length,
                         const int nDiffs, df_linecompare_T **df_comparisonlines,
                         int *df_arr_col_size, const int *outmap)
