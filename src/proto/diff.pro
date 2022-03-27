@@ -13,7 +13,7 @@ void ex_diffthis(exarg_T *eap);
 void diff_win_options(win_T *wp, int addbuf);
 void ex_diffoff(exarg_T *eap);
 void diff_clear(tabpage_T *tp);
-Bool diff_linematch(diff_T *dp);
+int diff_linematch(diff_T *dp);
 int count_virtual_lines(win_T *win, linenr_T start, linenr_T endline);
 int count_virtual_to_real(win_T *win, const linenr_T lnum, const int virtual_lines, int *line_new_virtualp );
 long count_n_matched_chars(const char_u **stringps, const int *fromValues, const int n, int ***comparison_mem);

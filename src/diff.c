@@ -1900,7 +1900,7 @@ diff_clear(tabpage_T *tp)
 /*
  *  return true if the options are set to use diff linematch
  */
-Bool diff_linematch(diff_T *dp)
+int diff_linematch(diff_T *dp)
 {
     if (!(diff_flags & DIFF_LINEMATCH)) {
 	return 0;
@@ -2018,7 +2018,7 @@ long count_matched_chars(const char_u *s1, const char_u *s2)
     long l1 = (long)STRLEN(s1), l2 = (long)STRLEN(s2);
     if ( diff_flags & DIFF_IWHITE || diff_flags & DIFF_IWHITEALL
 	    || diff_flags & DIFF_ICASE ) {
-	Bool iwhite = (diff_flags & DIFF_IWHITEALL || diff_flags & DIFF_IWHITE);
+	int iwhite = (diff_flags & DIFF_IWHITEALL || diff_flags & DIFF_IWHITE);
 	// the newly processed strings that will be compared
 	char_u *s1_proc = ALLOC_MULT(char_u, STRLEN(s1) + 1);
 	char_u *s2_proc = ALLOC_MULT(char_u, STRLEN(s2) + 1);
@@ -2081,7 +2081,7 @@ long matching_characters(const char_u *s1, const char_u *s2)
     long *matrix[2];
     matrix[0] = ALLOC_MULT(long, s2len + 1);
     matrix[1] = ALLOC_MULT(long, s2len + 1);
-    Bool icur = 1;  // save space by storing only two rows for i axis
+    int icur = 1;  // save space by storing only two rows for i axis
     for (long i = 0; i <= s1len; i++) {
 	icur = !icur;
 	for (long j = 0; j <= s2len; j++) {
@@ -2291,7 +2291,7 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
     // initialize compare lines
     for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
 	(*df_comparisonlines)[
-	    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
+	    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = FALSE;
 	(*df_comparisonlines)[
 	    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
 	for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
@@ -2308,11 +2308,11 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
 	// for each thing that gets compared
 	for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
 	    if ( best_path_decisions[p] & (1 << bit_place) ) {
-		Bool newline = True;
+		int newline = TRUE;
 		for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
 		    if (_bit_place != bit_place) {
 			if ( best_path_decisions[p] & (1 << _bit_place) ) {
-			    newline = False;
+			    newline = FALSE;
 			    (*df_comparisonlines)[
 				(*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
 			    ].df_compare[outmap[_bit_place]] = pointers[_bit_place];
@@ -2322,7 +2322,7 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
 		if ( newline ) {
 		    (*df_comparisonlines)[
 			(*df_arr_col_size) * outmap[bit_place] + pointers[bit_place]
-		    ].df_newline = True;
+		    ].df_newline = TRUE;
 		}
 
 	    } else {
@@ -2339,7 +2339,7 @@ void diff_allign_extraction(const int best_path_index, const int *best_path_deci
 	for (int bit_place = 0; bit_place < nDiffs; bit_place++) {
 	    if (best_path_decisions[p] & (1 << bit_place)) {
 		(*df_comparisonlines)[
-		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = False;
+		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_newline = FALSE;
 		(*df_comparisonlines)[
 		    (*df_arr_col_size) * outmap[bit_place] + pointers[bit_place] ].df_filler = 0;
 		for (int _bit_place = 0; _bit_place < nDiffs; _bit_place++) {
@@ -2626,7 +2626,7 @@ diff_check(win_T *wp, linenr_T lnum, int *linestatus)
 	vim_free(diff_length);
 	vim_free(outputmap);
 
-	dp->df_redraw = False;
+	dp->df_redraw = FALSE;
     }
     if (diff_linematch(dp)) {
 	long off = lnum - dp->df_lnum[idx];

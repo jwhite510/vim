@@ -3190,7 +3190,7 @@ struct diffcomparisonpath_flat_S {
 // diffopt is enabled, it is populated after running linematch_nbuffers
 typedef struct df_linecompare_S df_linecompare_T;
 struct df_linecompare_S {
-  Bool df_newline;  // is this line skipped in other buffers?
+  int df_newline;  // is this line skipped in other buffers?
   int df_filler;  // how many filler lines above this?
   int df_compare[DB_COUNT];  // which line to compare to in other buffer
 };
